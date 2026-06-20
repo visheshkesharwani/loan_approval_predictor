@@ -64,8 +64,8 @@ st.markdown("""
 
 # --- LOAD MODEL ---
 try:
-    model = joblib.load('../Model/loan_model.pkl')
-    scaler = joblib.load('../Model/scaler.pkl')
+    model = joblib.load('Model/loan_model.pkl')
+    scaler = joblib.load('Model/scaler.pkl')
 except Exception as e:
     st.error(f"System Error: Application models missing. Details: {e}")
     st.stop()
