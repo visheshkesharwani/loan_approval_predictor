@@ -1,17 +1,11 @@
 import streamlit as st
 import joblib
 import numpy as np
-
-# --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="Loan Approval Predictor", layout="wide", initial_sidebar_state="expanded")
-
-# --- SESSION STATE INITIALIZATION (Memory for Sidebar) ---
 if 'calc_amount' not in st.session_state:
     st.session_state.calc_amount = 250
 if 'calc_term' not in st.session_state:
     st.session_state.calc_term = 120
-
-# --- PROFESSIONAL CSS (DARK CURRENCY BACKGROUND & CLEAN UI) ---
 st.markdown("""
     <style>
     .stApp { 
@@ -53,24 +47,18 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
-# --- HEADER SECTION ---
 st.markdown("""
     <div class="premium-header">
         <h1>LOAN APPROVAL PREDICTOR</h1>
         <p>Comprehensive Risk Assessment & Eligibility System</p>
     </div>
 """, unsafe_allow_html=True)
-
-# --- LOAD MODEL ---
 try:
     model = joblib.load('MODEL/loan_model.pkl')
     scaler = joblib.load('MODEL/scaler.pkl')
 except Exception as e:
     st.error(f"System Error: Application models missing. Details: {e}")
     st.stop()
-
-# --- MAIN DASHBOARD FORM ---
 with st.form("pro_loan_form"):
     
     st.markdown("<div class='section-title'>Applicant Demographics</div><hr class='divider'>", unsafe_allow_html=True)
@@ -104,11 +92,13 @@ with st.form("pro_loan_form"):
 
     st.markdown("<br>", unsafe_allow_html=True)
     submit_button = st.form_submit_button(label="Evaluate Application")
-
-# --- SMART PREDICTION LOGIC ---
 if submit_button:
-    total_monthly_income = app_income + co_app_income
-    estimated_emi = (loan_amount * 1000 * 0.008) 
+    total_monthly_income = app_income + co_app_income    
+    p_main = loan_amount * 1000
+    r_main = (8.5 / 100) / 12  
+    n_main = loan_amount_term // 30 
+    estimated_emi = (p_main * r_main * ((1 + r_main)**n_main)) / (((1 + r_main)**n_main) - 1)
+    
     base_dti = (estimated_emi / total_monthly_income) * 100 if total_monthly_income > 0 else 100
     dti_ratio = base_dti + 15 if existing_loans == "Yes" else base_dti
     
@@ -153,7 +143,7 @@ if submit_button:
                 <span style='font-size:15px; color:#6ee7b7; font-weight:normal;'>Approval Probability: {final_probability:.1f}% | Profile Category: Standard</span>
             </div>
         """, unsafe_allow_html=True)
-        st.balloons()
+        
     else:
         st.markdown(f"""
             <div class='status-rejected'>
